@@ -6,6 +6,10 @@
 *  @typedef {import("./sdk/globals")}
 */
 include("critical.js"); // required
+// ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
+// D2BotDropper specific settings - for global settings see libs/starter/StarterConfig.js
+Starter.Config.JoinRetrys = 5; // Number of times to retry joining a game before quitting
+Starter.Config.JoinRetryDelay = 5; // Time in seconds to wait before next join attempt
 
 let usePackets = true; // Set true to drop using packets
 let restartDropper = false; // Set true to restart dropper profile after successful drop, or false to quit to lobby
@@ -22,7 +26,7 @@ include("systems/mulelogger/MuleLogger.js");
 include("systems/dropper/ItemDB.js");
 include("systems/dropper/DropperSetup.js");
 
-let i, ingame, handle, nextJob, lastGameTick, connectFail, lastGameName;
+let i, ingame, nextJob, lastGameTick, connectFail, lastGameName;
 let gameCount = DataFile.getStats().runs + 1;
 let joinRetry = 0;
 let jobs = [];
