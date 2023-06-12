@@ -4,6 +4,7 @@
 *  @desc        Entry script for dropper
 *
 *  @typedef {import("./sdk/globals")}
+*  @typedef {import("./libs/systems/dropper/ItemDB")}
 */
 include("critical.js"); // required
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
@@ -15,6 +16,7 @@ let usePackets = true; // Set true to drop using packets
 let restartDropper = false; // Set true to restart dropper profile after successful drop, or false to quit to lobby
 
 const Controls = require("./libs/modules/Control");
+const Overrides = require("./libs/modules/Override");
 
 if (typeof Starter.AdvancedConfig[me.profile] === "object") {
   Object.assign(Starter.Config, Starter.AdvancedConfig[me.profile]);
@@ -35,6 +37,18 @@ if (!FileTools.exists("data/" + me.profile + ".json")
   && !FileTools.exists("data/~$" + me.profile + ".json")) {
   DataFile.create();
 }
+
+new Overrides.Override(MuleLogger, MuleLogger.logChar, function (original, ...args) {
+  while (!me.gameReady) {
+    delay(3);
+  }
+
+  while (!ItemDB.init(false)) {
+    delay(1000);
+  }
+
+  original.apply(this, args);
+}).apply();
 
 function updateCount () {
   D2Bot.updateCount();
@@ -311,7 +325,7 @@ function DropIt () {
       Town.openStash();
     }
 
-    Misc.logItem(dropName + " Dropped item " + " for " + dropValue + " FG : ", dropList[i]);
+    Item.logItem(dropName + " Dropped item " + " for " + dropValue + " FG : ", dropList[i]);
 
     for (x = 1; x < 4; x++) {
       if (dropList[i].drop()) {
@@ -372,15 +386,7 @@ function dropLog (who, info) {
   if (!who) who = "unknown";
   if (!info) return false;
 
-  let date = new Date(),
-    h = date.getHours(),
-    m = date.getMinutes(),
-    s = date.getSeconds(),
-    y = date.getFullYear(),
-    mo = date.getMonth() + 1,
-    d = date.getDate(),
-    timestamp = "[" + y + "." + (mo < 10 ? "0" + mo : mo) + "." + (d < 10 ? "0" + d : d) + " " + (h < 10 ? "0" + h : h) + ":" + (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s) + "] ";
-
+  let timestamp = ItemDB.timeStamp();
   let line = timestamp + "<" + me.profile + "> " + info;
 
   FileAction.append("databases/logs/drop_" + who + ".log", line + "\n");
@@ -388,14 +394,21 @@ function dropLog (who, info) {
 }
 
 function logFG (who, value, success, f) {
-  let date = new Date(),
-    h = date.getHours(),
-    m = date.getMinutes(),
-    s = date.getSeconds(),
-    y = date.getFullYear(),
-    mo = date.getMonth() + 1,
-    d = date.getDate(),
-    timestamp = "" + y + "-" + (mo < 10 ? "0" + mo : mo) + "-" + (d < 10 ? "0" + d : d) + " " + (h < 10 ? "0" + h : h) + ":" + (m < 10 ? "0" + m : m) + ":" + (s < 10 ? "0" + s : s) + "";
+  let date = new Date();
+  let h = date.getHours();
+  let m = date.getMinutes();
+  let s = date.getSeconds();
+  let year = date.getFullYear();
+  let mo = date.getMonth() + 1;
+  let d = date.getDate();
+  let timestamp = (
+    "" + year + "-"
+    + (mo < 10 ? "0" + mo : mo)
+    + "-" + (d < 10 ? "0" + d : d)
+    + " " + (h < 10 ? "0" + h : h)
+    + ":" + (m < 10 ? "0" + m : m)
+    + ":" + (s < 10 ? "0" + s : s) + ""
+  );
 
   let text = timestamp + "," + who + "," + value + "," + success + "," + f;
 

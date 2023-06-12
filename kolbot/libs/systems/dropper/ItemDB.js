@@ -28,7 +28,7 @@ const ItemDB = {
   
   realms: { "uswest": 0, "useast": 1, "asia": 2, "europe": 3 },
   
-  log: function (data) {
+  timeStamp: function () {
     let date = new Date();
     let h = date.getHours();
     let m = date.getMinutes();
@@ -36,7 +36,7 @@ const ItemDB = {
     let year = date.getFullYear();
     let mo = date.getMonth() + 1;
     let d = date.getDate();
-    let timestamp = (
+    return (
       "[" + year + "."
       + (mo < 10 ? "0" + mo : mo)
       + "." + (d < 10 ? "0" + d : d)
@@ -44,6 +44,10 @@ const ItemDB = {
       + ":" + (m < 10 ? "0" + m : m)
       + ":" + (s < 10 ? "0" + s : s) + "] "
     );
+  },
+  
+  log: function (data) {
+    let timestamp = ItemDB.timeStamp();
     FileAction.append(this.logFile, timestamp + " - [ profile: \"" + me.profile + "\" account: \"" + me.account + "\" char: \"" + me.name + "\" ] " + data + "\n");
   },
   
