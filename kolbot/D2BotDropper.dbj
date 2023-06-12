@@ -5,7 +5,6 @@
 *
 *  @typedef {import("./sdk/globals")}
 */
-
 include("critical.js"); // required
 
 let usePackets = true; // Set true to drop using packets
@@ -18,17 +17,15 @@ if (typeof Starter.AdvancedConfig[me.profile] === "object") {
 }
 delete Starter.AdvancedConfig;
 
-includeCoreLibs();
+includeCoreLibs({ exclude: ["Skill.js"] });
 include("systems/mulelogger/MuleLogger.js");
 include("systems/dropper/ItemDB.js");
 include("systems/dropper/DropperSetup.js");
 
-load("threads/AreaWatcher.js");
-
-let i, ingame, handle, nextJob, lastGameTick, connectFail, lastGameName,
-  gameCount = DataFile.getStats().runs + 1,
-  joinRetry = 0,
-  jobs = [];
+let i, ingame, handle, nextJob, lastGameTick, connectFail, lastGameName;
+let gameCount = DataFile.getStats().runs + 1;
+let joinRetry = 0;
+let jobs = [];
 
 if (!FileTools.exists("data/" + me.profile + ".json")
   && !FileTools.exists("data/~$" + me.profile + ".json")) {
@@ -217,6 +214,7 @@ function DropIt () {
     }
   }
   delay((me.ping || 0) * 2 + 200);
+  includeIfNotIncluded("core/Skill.js");
 
   // Get items what we need to drop.
   for (i = 0; i < jobs.length; i++) {
@@ -381,7 +379,7 @@ function dropLog (who, info) {
 
   let line = timestamp + "<" + me.profile + "> " + info;
 
-  Misc.fileAction("databases/logs/drop_" + who + ".log", 2, line + "\n");
+  FileAction.append("databases/logs/drop_" + who + ".log", line + "\n");
   return true;
 }
 
@@ -397,7 +395,7 @@ function logFG (who, value, success, f) {
 
   let text = timestamp + "," + who + "," + value + "," + success + "," + f;
 
-  Misc.fileAction("databases/logs/FG_Sales.csv", 2, text + "\n");
+  FileAction.append("databases/logs/FG_Sales.csv", text + "\n");
   return true;
 }
 
@@ -852,7 +850,7 @@ function main () {
     delay(100);
   }
 
-  DataFile.updateStats("handle", handle);
+  DataFile.updateStats("handle", Starter.handle);
   D2Bot.init();
   load("threads/heartbeat.js");
 
