@@ -289,7 +289,7 @@ function DropIt () {
       continue;
     }
 
-    index = findList.findIndex(toDrop => toDrop.skin === ItemDB.getImage(items[i]) && toDrop.checksum === checksum);
+    index = findList.findIndex(toDrop => toDrop.skin === Item.getItemCode(items[i]) && toDrop.checksum === checksum);
 
     if (index !== -1) { // item match and have requested skin.
       foundItems.push(findList[index]);
