@@ -28,9 +28,18 @@ include("systems/mulelogger/MuleLogger.js");
 include("systems/dropper/ItemDB.js");
 include("systems/dropper/DropperSetup.js");
 
-let i, ingame, nextJob, lastGameTick, connectFail, lastGameName;
+let i, nextJob, lastGameTick, connectFail, lastGameName;
 let gameCount = DataFile.getStats().runs + 1;
 let joinRetry = 0;
+/**
+ * @typedef {Object} dropInfo
+ * @property {string} dropProfile
+ * @property {string} account
+ * @property {string} gameName
+ * @property {string} gamePass
+ * @property {string} charName
+ */
+/** @type {Array<dropInfo>} */
 let jobs = [];
 
 if (!FileTools.exists("data/" + me.profile + ".json")
@@ -88,9 +97,15 @@ function findNextJob () {
 }
 
 function getJobs (removeFinished, ftjhandler) {
-  let writeFile, findChange, i, myJob, info, currentReq, readFile, exists, x,
-    ranDelay = Math.floor((Math.random() * 1500) + 1),
-    accountsInProgress = [];
+  /** @type {FileClass} */
+  let readFile;
+  /** @type {FileClass} */
+  let writeFile;
+  /** @type {dropInfo} */
+  let currentReq;
+  let findChange, i, myJob, info, exists, x;
+  let ranDelay = Math.floor((Math.random() * 1500) + 1);
+  let accountsInProgress = [];
 
   delay(ranDelay);
 
@@ -103,15 +118,12 @@ function getJobs (removeFinished, ftjhandler) {
     readFile = File.open("databases/drop_" + me.profile + ".json", FILE_READ, false, true, true);
     info = readFile.readAllLines();
     readFile.close();
-
     writeFile = File.open("databases/drop_" + me.profile + ".json", FILE_WRITE, false, true, true);
-
   } catch (e) {
     return false;
   }
 
   if (writeFile && info[0] !== "") {
-
     // Sort through info and remove completed jobs, find jobs we SHOULDN'T take, and check for unfinished jobs
     for (i = 0; i < info.length - 1; i++) {
       currentReq = JSON.parse(info[i]);
@@ -248,9 +260,7 @@ function DropIt () {
   }
 
   dropLog(dropName, "Trying to drop " + itemsToDrop.length + " items. VALUE: " + dropValue);
-  //dropLog(dropName, "Trying to drop " + itemsToDrop.length + " items.");
   D2Bot.updateStatus("Dropping " + itemsToDrop.length + " items in " + me.gamename + " for " + dropValue + "fg");
-  //D2Bot.updateStatus("Dropping " + itemsToDrop.length + " items in " + me.gamename + "");
   delay((me.ping || 0) * 2 + 200);
 
   // create array of our items.
@@ -287,8 +297,6 @@ function DropIt () {
   for (i = 0; i < items.length; i++) {
     // update status to how many left
     D2Bot.updateStatus("Dropping " + itemsToDrop.length + " items in " + me.gamename + " for " + dropValue + "fg");
-
-    //D2Bot.updateStatus("Dropping " + itemsToDrop.length + " items in " + me.gamename + "");
 
     // all items found. no need to go through all of them anymore.
     if (findList.length === 0) {
@@ -335,10 +343,7 @@ function DropIt () {
 
         // log it
         D2Bot.printToConsole("[ user: \"" + dropName + "\" dropped: \"" + itemRead + "\" game: \"" + me.gamename + "//" + me.gamepassword + "\" value: " + dropValue + "]", 5);
-        // FileTools.appendText('databases/D2Update2.txt', me.profile + ":" + dropName + " Dropping " + itemRead + " items in " + me.gamename + " for " + dropValue + "fg" + " %LINE% "  + "\n")
-        //D2Bot.printToConsole("[ user: \"" + dropName + "\" dropped: \"" + itemRead + "\" game: \"" + me.gamename + "//" + me.gamepassword + "]", 5);
         dropLog(dropName, "[ profile: \"" + me.profile + "\" dropped: \"" + itemRead + "\" game: \"" + me.gamename + "//" + me.gamepassword + "\" value: " + dropValue + "]");
-        //dropLog(dropName, "[ profile: \"" + me.profile + "\" dropped: \"" + itemRead + "\" game: \"" + me.gamename + "//" + me.gamepassword + "]");
 
         continue DropLoop;
       }
@@ -368,16 +373,21 @@ function DropIt () {
     dropLog(dropName, "[ failed: \"" + failedCount + " items\" game: \"" + me.gamename + "//" + me.gamepassword + "\" ]");
   }
 
-  D2Bot.printToConsole("[ user: \"" + dropName + "\" dropped: \"" + (preDropCount - me.itemcount) + "/" + seekCount + " items\" game: \"" + me.gamename + "//" + me.gamepassword + "/" + me.realm + "\" ]", 4);
-  FileTools.appendText("databases/" + me.profile + ".txt", me.profile + ":" + dropName + " Dropped " + (preDropCount - me.itemcount) + " items in " + me.gamename + "/" + me.realm + "\n");
-  // if (itemsToDrop.length > 0) {
-  // D2Bot.printToConsole("[ user: \"" + dropName + "\" failed: \"" + itemsToDrop.length + " items\" game: \"" + me.gamename + "//" + me.gamepassword + " on " + " Realm " + me.realm + "\" ]", 9);
-  // dropLog(dropName, "[ failed: \"" + itemsToDrop.length + " items\" game: \"" + me.gamename + "//" + me.gamepassword + "\" ]");
-  // }
+  D2Bot.printToConsole(
+    "[ user: \"" + dropName
+    + "\" dropped: \"" + (preDropCount - me.itemcount)
+    + "/" + seekCount + " items\" game: \""
+    + me.gamename + "//" + me.gamepassword + "/" + me.realm + "\" ]",
+    4
+  );
+  FileTools.appendText(
+    "databases/" + me.profile + ".txt",
+    me.profile + ":" + dropName
+    + " Dropped " + (preDropCount - me.itemcount) + " items in "
+    + me.gamename + "/" + me.realm + "\n"
+  );
 
   MuleLogger.logChar();
-
-  //logFG(dropName, dropValue, successfuldrop.length, itemsToDrop.length);
 
   return true;
 }
@@ -416,10 +426,6 @@ function logFG (who, value, success, f) {
   return true;
 }
 
-function random (min, max) {
-  return Math.floor(Math.random() * (max - min + 1)) + min;
-}
-
 function locationAction () {
   if (me.ingame) {
     return;
@@ -443,7 +449,7 @@ function locationAction () {
       break;
     }
 
-    if (ingame) {
+    if (Starter.inGame) {
       while (!getJobs(nextJob.charName, false)) { // Successful drop, remove entry
         delay(100);
       }
@@ -906,7 +912,6 @@ function main () {
           Starter.lastGameStatus = "ingame";
           Starter.inGame = true;
           lastGameName = me.gamename.toLowerCase();
-
           DataFile.updateStats("runs", gameCount);
           DropIt();
 
