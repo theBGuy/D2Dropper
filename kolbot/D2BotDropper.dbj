@@ -5,6 +5,7 @@
 *
 *  @typedef {import("./sdk/globals")}
 *  @typedef {import("./libs/systems/dropper/ItemDB")}
+*  @typedef {import("./libs/systems/mulelogger/MuleLogger")}
 */
 include("critical.js"); // required
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ //
