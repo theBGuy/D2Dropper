@@ -17,7 +17,6 @@ let usePackets = true; // Set true to drop using packets
 let restartDropper = false; // Set true to restart dropper profile after successful drop, or false to quit to lobby
 
 const Controls = require("./libs/modules/Control");
-const Overrides = require("./libs/modules/Override");
 
 if (typeof Starter.AdvancedConfig[me.profile] === "object") {
   Object.assign(Starter.Config, Starter.AdvancedConfig[me.profile]);
@@ -47,18 +46,6 @@ if (!FileTools.exists("data/" + me.profile + ".json")
   && !FileTools.exists("data/~$" + me.profile + ".json")) {
   DataFile.create();
 }
-
-new Overrides.Override(MuleLogger, MuleLogger.logChar, function (original, ...args) {
-  while (!me.gameReady) {
-    delay(3);
-  }
-
-  while (!ItemDB.init(false)) {
-    delay(1000);
-  }
-
-  original.apply(this, args);
-}).apply();
 
 function updateCount () {
   D2Bot.updateCount();
