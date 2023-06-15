@@ -8,19 +8,6 @@
 */
 
 includeIfNotIncluded("systems/mulelogger/MuleLogger.js");
-const Overrides = require("../../modules/Override");
-
-new Overrides.Override(MuleLogger, MuleLogger.logChar, function (original, ...args) {
-  while (!me.gameReady) {
-    delay(3);
-  }
-
-  while (!ItemDB.init(false)) {
-    delay(1000);
-  }
-
-  original.apply(this, args);
-}).apply();
 
 const ItemDB = {
   skipEquiped: true, // skip equipped items in logging
